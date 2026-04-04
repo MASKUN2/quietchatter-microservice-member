@@ -2,6 +2,7 @@ package com.quietchatter.member.application
 
 import com.quietchatter.member.adaptor.out.external.NaverClient
 import com.quietchatter.member.adaptor.out.external.TalkServiceClient
+import com.quietchatter.member.adaptor.out.outbox.OutboxEventRepository
 import com.quietchatter.member.application.out.MemberRepository
 import com.quietchatter.member.domain.Member
 import com.quietchatter.member.domain.OauthProvider
@@ -11,10 +12,12 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import java.util.UUID
 
 class MemberServiceTest {
 
     private val memberRepository: MemberRepository = mock()
+    private val outboxEventRepository: OutboxEventRepository = mock()
     private val naverClient: NaverClient = mock()
     private val authTokenService: AuthTokenService = mock()
     private val randomNickNameSupplier: RandomNickNameSupplier = mock()
@@ -22,6 +25,7 @@ class MemberServiceTest {
     
     private val memberService = MemberService(
         memberRepository,
+        outboxEventRepository,
         naverClient,
         authTokenService,
         randomNickNameSupplier,
@@ -33,10 +37,17 @@ class MemberServiceTest {
         val nickname = "testNick"
         val registerToken = "token"
         val providerId = "naver123"
+        val expectedMemberId = UUID.randomUUID()
         
         whenever(authTokenService.parseRegisterToken(registerToken)).thenReturn(providerId)
         whenever(memberRepository.findByProviderAndProviderId(OauthProvider.NAVER, providerId)).thenReturn(null)
-        whenever(memberRepository.save(any<Member>())).thenAnswer { it.getArgument<Member>(0) }
+        whenever(memberRepository.save(any<Member>())).thenAnswer { 
+            val member = it.getArgument<Member>(0)
+            val memberField = Member::class.java.superclass.getDeclaredField("id")
+            memberField.isAccessible = true
+            memberField.set(member, expectedMemberId)
+            member
+        }
 
         val member = memberService.signup(nickname, registerToken)
 

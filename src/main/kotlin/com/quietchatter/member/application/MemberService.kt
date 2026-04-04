@@ -2,6 +2,8 @@ package com.quietchatter.member.application
 
 import com.quietchatter.member.adaptor.out.external.NaverClient
 import com.quietchatter.member.adaptor.out.external.TalkServiceClient
+import com.quietchatter.member.adaptor.out.outbox.OutboxEvent
+import com.quietchatter.member.adaptor.out.outbox.OutboxEventRepository
 import com.quietchatter.member.application.out.MemberRepository
 import com.quietchatter.member.domain.Member
 import com.quietchatter.member.domain.OauthProvider
@@ -17,6 +19,7 @@ import java.util.*
 @Service
 class MemberService(
     private val memberRepository: MemberRepository,
+    private val outboxEventRepository: OutboxEventRepository,
     private val naverClient: NaverClient,
     private val authTokenService: AuthTokenService,
     private val randomNickNameSupplier: RandomNickNameSupplier,
@@ -59,7 +62,18 @@ class MemberService(
         }
 
         val member = Member.newNaverMember(providerId, nickname)
-        return memberRepository.save(member)
+        val savedMember = memberRepository.save(member)
+
+        val eventPayload = """{"memberId": "${savedMember.id}", "nickname": "${savedMember.nickname}"}"""
+        val outboxEvent = OutboxEvent(
+            aggregateType = "Member",
+            aggregateId = savedMember.id.toString(),
+            type = "MemberRegisteredEvent",
+            payload = eventPayload
+        )
+        outboxEventRepository.save(outboxEvent)
+
+        return savedMember
     }
 
     @Transactional

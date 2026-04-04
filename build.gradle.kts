@@ -44,6 +44,9 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
 
+    // Event Driven Architecture
+    implementation("org.springframework.cloud:spring-cloud-starter-stream-kafka")
+
     runtimeOnly("org.postgresql:postgresql")
     testRuntimeOnly("com.h2database:h2")
 
@@ -52,6 +55,8 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
     testImplementation("com.epages:restdocs-api-spec-mockmvc:0.19.4")
+    testImplementation("org.testcontainers:kafka")
+    testImplementation("org.testcontainers:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
