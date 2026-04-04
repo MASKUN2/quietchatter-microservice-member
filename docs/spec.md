@@ -15,7 +15,7 @@
 | nickname | String | 사용자 닉네임 |
 | providerId | String | OAuth 제공사 ID (Naver ID) |
 | provider | OauthProvider | OAuth 제공사 (NAVER) |
-| role | Role | 권한 (USER, ADMIN) |
+| role | Role | 권한 (REGULAR, MANAGER) |
 | status | Status | 계정 상태 (ACTIVE, DEACTIVATED) |
 | createdAt | LocalDateTime | 생성일시 |
 | updatedAt | LocalDateTime | 수정일시 |
@@ -51,7 +51,7 @@
 }
 ```
 
-* 기존 회원: Access Token과 Refresh Token을 쿠키에 설정하고 응답.
+* 기존 회원: ACCESS_TOKEN과 REFRESH_TOKEN을 쿠키에 설정하고 응답.
 * 신규 회원: 회원가입용 단기 토큰(registerToken)을 응답 바디에 포함.
 
 #### POST /v1/auth/signup
@@ -66,10 +66,10 @@
 }
 ```
 
-응답: 200 OK (Access Token, Refresh Token 쿠키 설정)
+응답: 200 OK (ACCESS_TOKEN, REFRESH_TOKEN 쿠키 설정)
 
 #### POST /v1/auth/logout
-로그아웃. Refresh Token을 Redis에서 삭제하고 쿠키를 만료시킴.
+로그아웃. REFRESH_TOKEN을 Redis에서 삭제하고 쿠키를 만료시킴.
 
 응답: 204 No Content
 
@@ -78,7 +78,7 @@
 
 요청 헤더: `Authorization: Bearer {reactivationToken}`
 
-응답: 200 OK (Access Token, Refresh Token 쿠키 설정)
+응답: 200 OK (ACCESS_TOKEN, REFRESH_TOKEN 쿠키 설정)
 
 #### GET /v1/auth/me
 현재 로그인한 사용자 기본 정보 조회.
@@ -88,9 +88,10 @@
 응답:
 ```json
 {
+  "isLoggedIn": true,
   "id": "uuid",
   "nickname": "닉네임",
-  "role": "USER"
+  "role": "REGULAR"
 }
 ```
 
@@ -122,7 +123,7 @@
 처리 순서:
 1. Member 상태를 DEACTIVATED로 변경
 2. microservice-talk에 내 모든 북톡 숨김 처리 요청
-3. Refresh Token 삭제
+3. REFRESH_TOKEN 삭제
 4. 쿠키 만료 처리
 
 응답: 204 No Content
@@ -131,10 +132,10 @@
 
 | 토큰 | 저장 위치 | 만료 시간 | 용도 |
 |---|---|---|---|
-| Access Token | 쿠키 (HttpOnly) | 1시간 | 일반 API 인증 |
-| Refresh Token | 쿠키 (HttpOnly) + Redis | 7일 | Access Token 재발급 |
-| Register Token | 응답 바디 | 10분 | 회원가입 전용 |
-| Reactivation Token | 응답 바디 | 10분 | 계정 재활성화 전용 |
+| ACCESS_TOKEN | 쿠키 (HttpOnly) | 30분 | 일반 API 인증 |
+| REFRESH_TOKEN | 쿠키 (HttpOnly) + Redis | 30일 | Access Token 재발급 |
+| Register Token | 응답 바디 | 2시간 | 회원가입 전용 |
+| Reactivation Token | 응답 바디 | 2시간 | 계정 재활성화 전용 |
 
 ## 5. 닉네임 검증 규칙
 

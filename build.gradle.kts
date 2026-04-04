@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.9.25"
     kotlin("plugin.spring") version "1.9.25"
     kotlin("plugin.jpa") version "1.9.25"
+    id("com.epages.restdocs-api-spec") version "0.19.4"
 }
 
 group = "com.quietchatter"
@@ -33,6 +34,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.cloud:spring-cloud-starter-consul-discovery")
     implementation("org.springframework.cloud:spring-cloud-starter-consul-config")
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     
@@ -42,9 +45,13 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
 
     runtimeOnly("org.postgresql:postgresql")
+    testRuntimeOnly("com.h2database:h2")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+    testImplementation("com.epages:restdocs-api-spec-mockmvc:0.19.4")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -57,4 +64,32 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.register<Test>("testDocs") {
+    group = "verification"
+    description = "API 문서 생성을 위한 테스트 실행"
+    useJUnitPlatform {
+        includeTags("restdocs")
+    }
+}
+
+configure<com.epages.restdocs.apispec.gradle.OpenApi3Extension> {
+    setServer("http://localhost:8080")
+    title = "Member Service API"
+    description = "Authentication and Member Domain API documentation"
+    version = "0.0.1"
+    format = "yaml"
+    outputDirectory = "build/api-spec"
+}
+
+tasks.matching { it.name == "openapi3" }.configureEach {
+    dependsOn("testDocs")
+}
+
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
+    dependsOn(tasks.matching { it.name == "openapi3" })
+    from("build/api-spec") {
+        into("static/docs")
+    }
 }

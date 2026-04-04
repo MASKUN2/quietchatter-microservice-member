@@ -1,14 +1,14 @@
 package com.quietchatter.member.application
 
+import com.quietchatter.member.adaptor.out.external.NaverClient
+import com.quietchatter.member.adaptor.out.external.TalkServiceClient
+import com.quietchatter.member.application.out.MemberRepository
 import com.quietchatter.member.domain.Member
-import com.quietchatter.member.domain.MemberRepository
 import com.quietchatter.member.domain.OauthProvider
 import com.quietchatter.member.domain.Status
 import com.quietchatter.member.dto.NaverLoginRequest
 import com.quietchatter.member.dto.NaverLoginResponse
-import com.quietchatter.member.dto.SignupRequest
 import com.quietchatter.member.infrastructure.AuthTokenService
-import com.quietchatter.member.infrastructure.NaverClient
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -18,7 +18,9 @@ import java.util.*
 class MemberService(
     private val memberRepository: MemberRepository,
     private val naverClient: NaverClient,
-    private val authTokenService: AuthTokenService
+    private val authTokenService: AuthTokenService,
+    private val randomNickNameSupplier: RandomNickNameSupplier,
+    private val talkServiceClient: TalkServiceClient
 ) {
 
     @Transactional
@@ -34,32 +36,64 @@ class MemberService(
 
         return if (member != null) {
             if (member.status == Status.DEACTIVATED) {
-                throw RuntimeException("Member is deactivated")
+                val reactivationToken = authTokenService.createReactivationToken(member.id!!)
+                throw MemberDeactivatedException(reactivationToken)
             }
             // Issue tokens immediately for registered members
             authTokenService.putTokensInCookies(response, member.id!!)
             NaverLoginResponse.registered()
         } else {
             val registerToken = authTokenService.createRegisterToken(providerId)
-            val tempNickname = "Member_${UUID.randomUUID().toString().substring(0, 8)}"
+            val tempNickname = randomNickNameSupplier.get()
             NaverLoginResponse.notRegistered(registerToken, tempNickname)
         }
     }
 
     @Transactional
-    fun signup(request: SignupRequest): Member {
-        val providerId = authTokenService.parseRegisterToken(request.registerToken)
+    fun signup(nickname: String, registerToken: String): Member {
+        val providerId = authTokenService.parseRegisterToken(registerToken)
             ?: throw IllegalArgumentException("Invalid register token")
 
         if (memberRepository.findByProviderAndProviderId(OauthProvider.NAVER, providerId) != null) {
             throw IllegalArgumentException("Already registered member")
         }
 
-        val member = Member.newNaverMember(providerId, request.nickname)
+        val member = Member.newNaverMember(providerId, nickname)
         return memberRepository.save(member)
     }
 
-    fun findByProviderId(providerId: String): Member? {
-        return memberRepository.findByProviderAndProviderId(OauthProvider.NAVER, providerId)
+    @Transactional
+    fun reactivate(reactivationToken: String, response: HttpServletResponse) {
+        val memberId = authTokenService.parseReactivationToken(reactivationToken)
+            ?: throw IllegalArgumentException("Invalid reactivation token")
+        
+        val member = memberRepository.findById(memberId).orElseThrow { 
+            MemberNotFoundException("Member not found") 
+        }
+        
+        member.activate()
+        authTokenService.putTokensInCookies(response, member.id!!)
+    }
+
+    @Transactional(readOnly = true)
+    fun findById(id: UUID): Member? {
+        return memberRepository.findById(id).orElse(null)
+    }
+
+    @Transactional
+    fun updateNickname(id: UUID, nickname: String) {
+        val member = memberRepository.findById(id).orElseThrow { 
+            MemberNotFoundException("Member not found") 
+        }
+        member.updateNickname(nickname)
+    }
+
+    @Transactional
+    fun deactivate(id: UUID) {
+        val member = memberRepository.findById(id).orElseThrow { 
+            MemberNotFoundException("Member not found") 
+        }
+        member.deactivate()
+        talkServiceClient.hideAllByMember(id)
     }
 }

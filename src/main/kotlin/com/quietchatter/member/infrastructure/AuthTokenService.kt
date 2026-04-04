@@ -25,9 +25,10 @@ class AuthTokenService(
     private val accessTokenLifetime = Duration.ofMinutes(30)
     private val refreshTokenLifetime = Duration.ofDays(30)
     private val registerTokenLifetime = Duration.ofHours(2)
+    private val reactivationTokenLifetime = Duration.ofHours(2)
 
-    private val accessTokenCookieName = "access_token"
-    private val refreshTokenCookieName = "refresh_token"
+    private val accessTokenCookieName = "ACCESS_TOKEN"
+    private val refreshTokenCookieName = "REFRESH_TOKEN"
 
     fun createNewAccessToken(memberId: UUID): String {
         val exp = Date.from(Instant.now().plus(accessTokenLifetime))
@@ -62,6 +63,11 @@ class AuthTokenService(
         addCookie(response, refreshTokenCookieName, refreshToken, refreshTokenLifetime)
     }
 
+    fun expireTokenCookies(response: HttpServletResponse) {
+        addCookie(response, accessTokenCookieName, "", Duration.ZERO)
+        addCookie(response, refreshTokenCookieName, "", Duration.ZERO)
+    }
+
     private fun addCookie(response: HttpServletResponse, name: String, value: String, maxAge: Duration) {
         val cookie = ResponseCookie.from(name, value)
             .path("/")
@@ -92,6 +98,39 @@ class AuthTokenService(
             } else null
         } catch (e: Exception) {
             null
+        }
+    }
+
+    fun createReactivationToken(memberId: UUID): String {
+        val exp = Date.from(Instant.now().plus(reactivationTokenLifetime))
+        return Jwts.builder()
+            .subject(memberId.toString())
+            .claim("purpose", "reactivate")
+            .signWith(secretKey)
+            .expiration(exp)
+            .compact()
+    }
+
+    fun parseReactivationToken(token: String): UUID? {
+        return try {
+            val claims = jwtParser.parseSignedClaims(token).payload
+            if (claims["purpose"] == "reactivate") {
+                UUID.fromString(claims.subject)
+            } else null
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun deleteRefreshTokenByValue(refreshToken: String) {
+        try {
+            val claims = jwtParser.parseSignedClaims(refreshToken).payload
+            val tokenId = claims.id
+            if (tokenId != null) {
+                redisTemplate.delete("refresh_token:$tokenId")
+            }
+        } catch (e: Exception) {
+            // Ignore if token is already invalid
         }
     }
 }

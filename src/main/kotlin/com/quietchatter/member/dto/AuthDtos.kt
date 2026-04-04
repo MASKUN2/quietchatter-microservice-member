@@ -1,5 +1,7 @@
 package com.quietchatter.member.dto
 
+import java.util.*
+
 data class NaverLoginRequest(
     val code: String,
     val state: String
@@ -18,6 +20,20 @@ data class NaverLoginResponse(
 }
 
 data class SignupRequest(
-    val registerToken: String,
+    val nickname: String
+)
+
+data class ReactivateRequest(
+    val token: String
+)
+
+data class AuthMeResponse(
+    val isLoggedIn: Boolean,
+    val id: UUID? = null,
+    val nickname: String? = null,
+    val role: String? = null
+)
+
+data class UpdateProfileRequest(
     val nickname: String
 )
