@@ -1,0 +1,16 @@
+server:
+  port: 8081
+
+spring:
+  docker:
+    compose:
+      enabled: true
+      file: compose.yaml
+  
+  cloud:
+    consul:
+      enabled: false # Disable consul for local development if not running
+    stream:
+      kafka:
+        binder:
+          brokers: localhost:19092
