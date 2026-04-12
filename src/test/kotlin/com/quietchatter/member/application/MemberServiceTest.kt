@@ -1,7 +1,6 @@
 package com.quietchatter.member.application
 
 import com.quietchatter.member.adaptor.out.external.NaverClient
-import com.quietchatter.member.adaptor.out.external.TalkServiceClient
 import com.quietchatter.member.adaptor.out.outbox.OutboxEventRepository
 import com.quietchatter.member.application.out.MemberRepository
 import com.quietchatter.member.domain.Member
@@ -21,15 +20,13 @@ class MemberServiceTest {
     private val naverClient: NaverClient = mock()
     private val authTokenService: AuthTokenService = mock()
     private val randomNickNameSupplier: RandomNickNameSupplier = mock()
-    private val talkServiceClient: TalkServiceClient = mock()
     
     private val memberService = MemberService(
         memberRepository,
         outboxEventRepository,
         naverClient,
         authTokenService,
-        randomNickNameSupplier,
-        talkServiceClient
+        randomNickNameSupplier
     )
 
     @Test

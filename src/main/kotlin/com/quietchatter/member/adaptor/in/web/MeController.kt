@@ -4,6 +4,7 @@ import com.quietchatter.member.application.MemberService
 import com.quietchatter.member.dto.UpdateProfileRequest
 import com.quietchatter.member.infrastructure.AuthTokenService
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -15,17 +16,10 @@ class MeController(
     private val authTokenService: AuthTokenService
 ) {
 
-    @GetMapping("/talks")
-    fun getMyTalks(
-        @RequestHeader("X-Member-Id") memberId: UUID
-    ): ResponseEntity<Any> {
-        return ResponseEntity.ok("Feature coming soon: My Talks for member $memberId")
-    }
-
     @PutMapping("/profile")
     fun updateProfile(
         @RequestHeader("X-Member-Id") memberId: UUID,
-        @RequestBody request: UpdateProfileRequest
+        @Valid @RequestBody request: UpdateProfileRequest
     ): ResponseEntity<Unit> {
         memberService.updateNickname(memberId, request.nickname)
         return ResponseEntity.noContent().build()

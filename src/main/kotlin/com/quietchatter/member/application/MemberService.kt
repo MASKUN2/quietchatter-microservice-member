@@ -1,7 +1,6 @@
 package com.quietchatter.member.application
 
 import com.quietchatter.member.adaptor.out.external.NaverClient
-import com.quietchatter.member.adaptor.out.external.TalkServiceClient
 import com.quietchatter.member.adaptor.out.outbox.OutboxEvent
 import com.quietchatter.member.adaptor.out.outbox.OutboxEventRepository
 import com.quietchatter.member.application.out.MemberRepository
@@ -22,8 +21,7 @@ class MemberService(
     private val outboxEventRepository: OutboxEventRepository,
     private val naverClient: NaverClient,
     private val authTokenService: AuthTokenService,
-    private val randomNickNameSupplier: RandomNickNameSupplier,
-    private val talkServiceClient: TalkServiceClient
+    private val randomNickNameSupplier: RandomNickNameSupplier
 ) {
 
     @Transactional
@@ -108,6 +106,14 @@ class MemberService(
             MemberNotFoundException("Member not found") 
         }
         member.deactivate()
-        talkServiceClient.hideAllByMember(id)
+
+        val eventPayload = """{"memberId": "${member.id}"}"""
+        val outboxEvent = OutboxEvent(
+            aggregateType = "Member",
+            aggregateId = member.id.toString(),
+            type = "MemberDeactivatedEvent",
+            payload = eventPayload
+        )
+        outboxEventRepository.save(outboxEvent)
     }
 }

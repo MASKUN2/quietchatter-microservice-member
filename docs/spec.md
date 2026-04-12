@@ -66,7 +66,7 @@
 }
 ```
 
-응답: 200 OK (ACCESS_TOKEN, REFRESH_TOKEN 쿠키 설정)
+응답: 201 Created (ACCESS_TOKEN, REFRESH_TOKEN 쿠키 설정)
 
 #### POST /v1/auth/logout
 로그아웃. REFRESH_TOKEN을 Redis에서 삭제하고 쿠키를 만료시킴.
@@ -97,14 +97,6 @@
 
 ### 3.2 내 계정 API (인증 필요: X-Member-Id 헤더)
 
-#### GET /v1/me/talks
-내가 작성한 북톡 목록 조회.
-
-* 이 API는 실제 데이터를 microservice-talk에 요청하여 반환합니다.
-* 서비스 간 통신은 Consul 기반 RestClient를 사용합니다.
-
-응답: 페이지네이션된 북톡 목록
-
 #### PUT /v1/me/profile
 내 닉네임 수정.
 
@@ -122,7 +114,7 @@
 
 처리 순서:
 1. Member 상태를 DEACTIVATED로 변경
-2. microservice-talk에 내 모든 북톡 숨김 처리 요청
+2. MemberDeactivatedEvent 발행 (Kafka/Outbox)
 3. REFRESH_TOKEN 삭제
 4. 쿠키 만료 처리
 
@@ -151,8 +143,9 @@
 
 ## 7. 서비스 간 통신
 
-* microservice-talk: `DELETE /internal/talks/by-member/{memberId}` (탈퇴 시 북톡 숨김)
-* 통신 방식: Spring RestClient + Consul LoadBalancer
+* 이벤트 발행: `MemberRegisteredEvent`, `MemberDeactivatedEvent`
+* 통신 방식: Kafka (Redpanda) + Transactional Outbox Pattern
+* microservice-talk 등 타 서비스에서 해당 이벤트를 구독하여 후속 처리(북톡 숨김 등)를 수행합니다.
 
 ## 8. 구현 우선순위
 

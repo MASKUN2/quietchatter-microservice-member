@@ -10,6 +10,9 @@ spring:
   cloud:
     consul:
       enabled: false # Disable consul for local development if not running
+    aws:
+      secretsmanager:
+        enabled: false
     stream:
       kafka:
         binder:

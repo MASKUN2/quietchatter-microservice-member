@@ -1,5 +1,8 @@
 package com.quietchatter.member.dto
 
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
 import java.util.*
 
 data class NaverLoginRequest(
@@ -20,6 +23,9 @@ data class NaverLoginResponse(
 }
 
 data class SignupRequest(
+    @field:NotBlank
+    @field:Size(min = 2, max = 10)
+    @field:Pattern(regexp = "^[가-힣a-zA-Z0-9]+$")
     val nickname: String
 )
 
@@ -35,5 +41,8 @@ data class AuthMeResponse(
 )
 
 data class UpdateProfileRequest(
+    @field:NotBlank
+    @field:Size(min = 2, max = 10)
+    @field:Pattern(regexp = "^[가-힣a-zA-Z0-9]+$")
     val nickname: String
 )

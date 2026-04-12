@@ -32,7 +32,10 @@ spring:
     baseline-on-migrate: true
 
   config:
-    import: "optional:consul:"
+    import: 
+      - "optional:consul:"
+      - "optional:aws-secretsmanager:quietchatter-naver-client-id"
+      - "optional:aws-secretsmanager:quietchatter-naver-client-secret"
   cloud:
     function:
       autodetect: false
@@ -66,9 +69,14 @@ spring:
       discovery:
         service-name: microservice-member
         instance-id: ${spring.application.name}:${server.port}
+    aws:
+      region:
+        static: ${AWS_REGION:ap-northeast-2}
+      secretsmanager:
+        enabled: ${AWS_SECRETSMANAGER_ENABLED:true}
 
 jwt:
-  secret-key: ${JWT_SECRET_KEY:veryveryveryveryLongSecretKeyForLocalDevelopment}
+  secret-key: ${quietchatter-jwt-secret-key:veryveryveryveryLongSecretKeyForLocalDevelopment}
 
 app:
   cookie:
@@ -78,5 +86,6 @@ app:
 
 naver:
   api:
-    client-id: ${NAVER_CLIENT_ID:placeholder}
-    client-secret: ${NAVER_CLIENT_SECRET:placeholder}
+    client-id: ${quietchatter-naver-client-id:placeholder}
+    client-secret: ${quietchatter-naver-client-secret:placeholder}
+

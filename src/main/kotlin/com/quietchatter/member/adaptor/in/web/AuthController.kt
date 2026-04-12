@@ -5,6 +5,7 @@ import com.quietchatter.member.application.MemberService
 import com.quietchatter.member.dto.*
 import com.quietchatter.member.infrastructure.AuthTokenService
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.validation.Valid
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
@@ -39,7 +40,7 @@ class AuthController(
     @PostMapping("/signup")
     fun signup(
         @RequestHeader(HttpHeaders.AUTHORIZATION) authHeader: String,
-        @RequestBody request: SignupRequest,
+        @Valid @RequestBody request: SignupRequest,
         response: HttpServletResponse
     ): ResponseEntity<Unit> {
         val registerToken = if (authHeader.startsWith("Bearer ")) authHeader.substring(7) else authHeader
