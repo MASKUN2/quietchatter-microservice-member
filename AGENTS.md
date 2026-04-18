@@ -53,7 +53,15 @@ com.quietchatter.member/
 * 새로운 코드를 작성하거나 수정할 때마다 반드시 단위 테스트(Unit Test)를 함께 작성하고 통과를 확인하십시오.
 * 라이브러리 추가 시 업계 표준 및 Kotlin 친화적 의존성(예: `mockito-kotlin`) 사용 원칙을 준수하십시오.
 
-### B. 토큰 처리 규칙
+### B. 메시징 및 이벤트 처리 규칙
+
+* 모든 외부 이벤트 발행은 트랜잭셔널 아웃박스(Transactional Outbox) 패턴을 따릅니다.
+* 이벤트 직렬화 포맷은 Apache Avro를 사용하며, Redpanda Schema Registry와 연동됩니다.
+* 스키마 정의는 `src/main/avro/` 경로에 `.avsc` 파일로 관리합니다.
+* 스키마 변경 시 `./gradlew generateAvroJava` 명령을 실행하여 최신 도메인 객체를 생성해야 합니다.
+* 발행되는 메시지의 페이로드는 자동 생성된 Avro 클래스 인스턴스를 사용하십시오.
+
+### C. 토큰 처리 규칙
 
 * JWT Access Token과 Refresh Token 발급은 이 서비스가 담당합니다.
 * 토큰 발급 후 쿠키에 설정하는 로직은 레거시의 `AuthTokenService.java`를 참고하십시오.

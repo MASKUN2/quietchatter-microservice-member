@@ -1,0 +1,12 @@
+{
+  "type": "record",
+  "name": "MemberEventAvro",
+  "namespace": "com.quietchatter.member.adaptor.out.messaging.avro",
+  "fields": [
+    {"name": "eventId", "type": "string"},
+    {"name": "aggregateId", "type": "string"},
+    {"name": "type", "type": "string"},
+    {"name": "payload", "type": "string"},
+    {"name": "occurredAt", "type": "string"}
+  ]
+}
