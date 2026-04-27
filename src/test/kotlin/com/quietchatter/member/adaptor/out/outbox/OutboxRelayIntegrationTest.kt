@@ -36,7 +36,6 @@ class OutboxRelayIntegrationTest {
         @DynamicPropertySource
         fun registerKafkaProperties(registry: DynamicPropertyRegistry) {
             registry.add("spring.cloud.stream.kafka.binder.brokers", kafka::getBootstrapServers)
-            registry.add("spring.cloud.stream.kafka.binder.configuration.schema.registry.url") { "http://localhost:8081" }
             // Disable actual scheduled running during context load if we want manual testing
             registry.add("outbox.relay.fixed-delay") { "9999999" }
         }

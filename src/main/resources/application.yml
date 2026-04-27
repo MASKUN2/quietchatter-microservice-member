@@ -45,8 +45,6 @@ spring:
       kafka:
         binder:
           brokers: ${KAFKA_BROKERS:localhost:19092}
-          configuration:
-            schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
         bindings:
           memberEvents-in-0:
             consumer:
@@ -55,11 +53,11 @@ spring:
       bindings:
         memberEvents-out-0:
           destination: member
-          content-type: application/*+avro
+          content-type: application/json
         memberEvents-in-0:
           destination: member
           group: ${spring.application.name}-group
-          content-type: application/*+avro
+          content-type: application/json
           consumer:
             max-attempts: 3
             back-off-initial-interval: 1000

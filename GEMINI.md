@@ -62,10 +62,9 @@ com.quietchatter.member/
 ### C. 메시징 및 이벤트 처리 규칙
 
 * 모든 외부 이벤트 발행은 트랜잭셔널 아웃박스(Transactional Outbox) 패턴을 따릅니다.
-* 이벤트 직렬화 포맷은 Apache Avro를 사용하며, Redpanda Schema Registry와 연동됩니다.
-* 스키마 정의는 src/main/avro/ 경로에 .avsc 파일로 관리합니다.
-* 스키마 변경 시 ./gradlew generateAvroJava 명령을 실행하여 최신 도메인 객체를 생성해야 합니다.
-* 발행되는 메시지의 페이로드는 자동 생성된 Avro 클래스 인스턴스를 사용하십시오.
+* 이벤트 직렬화 포맷은 평면화된 JSON(Flattened JSON)을 사용합니다.
+* 메타데이터 필드(ID, 타입, 시간, 애그리거트 ID)에는 `evt_` 접두어를 사용하여 비즈니스 데이터와 구분합니다.
+* 발행되는 메시지의 페이로드는 서비스 내 정의된 Integration Event DTO 인스턴스를 사용하십시오.
 
 ### D. 토큰 처리 규칙
 
