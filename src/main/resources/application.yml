@@ -32,8 +32,7 @@ spring:
     baseline-on-migrate: true
 
   config:
-    import: 
-      - "optional:consul:"
+    import:
       - "optional:aws-secretsmanager:quietchatter-naver-client-id"
       - "optional:aws-secretsmanager:quietchatter-naver-client-secret"
   cloud:
@@ -66,12 +65,6 @@ spring:
             back-off-initial-interval: 1000
             back-off-max-interval: 10000
             back-off-multiplier: 2.0
-    consul:
-      host: ${CONSUL_HOST:localhost}
-      port: 8500
-      discovery:
-        service-name: microservice-member
-        instance-id: ${spring.application.name}:${server.port}
     aws:
       region:
         static: ${AWS_REGION:ap-northeast-2}
