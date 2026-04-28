@@ -7,11 +7,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/v1/customer")
+@RequestMapping("/api/support/messages")
 class CustomerMessageController(
     private val customerMessageCreatable: CustomerMessageCreatable
 ) {
-    @PostMapping("/messages")
+    @PostMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
     fun create(@RequestBody @Valid request: CreateRequest) {
         customerMessageCreatable.create(CustomerMessageCreatable.CreateCommand(request.content))

@@ -15,7 +15,7 @@ import java.net.URI
 import java.util.*
 
 @RestController
-@RequestMapping("/v1/auth")
+@RequestMapping("/api/auth")
 class AuthController(
     private val memberService: MemberService,
     private val authTokenService: AuthTokenService

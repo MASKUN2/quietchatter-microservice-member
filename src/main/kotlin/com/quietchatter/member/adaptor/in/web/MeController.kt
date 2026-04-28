@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
-@RequestMapping("/v1/me")
+@RequestMapping("/api/members/me")
 class MeController(
     private val memberService: MemberService,
     private val authTokenService: AuthTokenService
