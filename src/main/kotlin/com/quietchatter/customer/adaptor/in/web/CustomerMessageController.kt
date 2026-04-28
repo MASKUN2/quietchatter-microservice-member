@@ -1,6 +1,6 @@
-package com.quietchatter.customer.adaptor.in.web
+package com.quietchatter.customer.adaptor.`in`.web
 
-import com.quietchatter.customer.application.in.CustomerMessageCreatable
+import com.quietchatter.customer.application.`in`.CustomerMessageCreatable
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
 import org.springframework.http.HttpStatus
