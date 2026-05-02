@@ -24,18 +24,15 @@ repositories {
 }
 
 extra["springCloudVersion"] = "2025.0.2"
-extra["springCloudAwsVersion"] = "3.4.2"
 
 dependencies {
     implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.13"))
     implementation(platform("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}"))
-    implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:${property("springCloudAwsVersion")}"))
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("io.awspring.cloud:spring-cloud-aws-starter-secrets-manager")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")

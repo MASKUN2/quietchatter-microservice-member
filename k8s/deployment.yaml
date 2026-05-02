@@ -42,6 +42,26 @@ spec:
                 secretKeyRef:
                   name: quietchatter-secrets
                   key: DB_PASSWORD
+            - name: INTERNAL_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: quietchatter-secrets
+                  key: INTERNAL_SECRET
+            - name: NAVER_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: quietchatter-secrets
+                  key: NAVER_CLIENT_ID
+            - name: NAVER_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: quietchatter-secrets
+                  key: NAVER_CLIENT_SECRET
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: quietchatter-secrets
+                  key: JWT_SECRET_KEY
             - name: KAFKA_BROKERS
               value: redpanda.quietchatter.svc.cluster.local:9092
             - name: SPRING_DATA_REDIS_HOST

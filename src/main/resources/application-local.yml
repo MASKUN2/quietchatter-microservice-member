@@ -8,9 +8,6 @@ spring:
       file: compose.yaml
   
   cloud:
-    aws:
-      secretsmanager:
-        enabled: false
     stream:
       kafka:
         binder:
