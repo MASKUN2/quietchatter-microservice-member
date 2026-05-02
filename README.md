@@ -54,6 +54,12 @@ com.quietchatter.customer/
 |---|---|---|
 | POST | /api/support/messages | 고객 문의 접수 |
 
+### 내부용 API (/internal/api, 외부 차단)
+
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| GET | /internal/api/members/{memberId} | 회원 공개 정보(닉네임 등) 조회 |
+
 ## 도메인 모델
 
 Member: id(UUID), nickname, providerId, provider(NAVER), role(REGULAR/MANAGER), status(ACTIVE/DEACTIVATED)
@@ -67,9 +73,13 @@ Member: id(UUID), nickname, providerId, provider(NAVER), role(REGULAR/MANAGER), 
 | Register Token | 응답 바디 | 2시간 | 회원가입 전용 |
 | Reactivation Token | 응답 바디 | 2시간 | 계정 재활성화 전용 |
 
+## 에러 핸들링
+
+RFC 7807 (Problem Details for HTTP APIs) 표준을 준수하며, @RestControllerAdvice를 통해 전역 예외 처리를 수행합니다.
+
 ## 이벤트
 
-- 발행: MemberRegisteredEvent, MemberDeactivatedEvent (Kafka 토픽: member)
+- 발행: MemberRegisteredEvent, MemberDeactivatedEvent, MemberProfileUpdatedEvent (Kafka 토픽: member)
 - 전송 패턴: Transactional Outbox
 
 ## 닉네임 검증 규칙
