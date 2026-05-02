@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets
 @RestController
 class SpecController {
 
-    @GetMapping("/api/members/spec")
+    @GetMapping("/api/spec")
     fun getSpec(): ResponseEntity<String> {
         return try {
             val resource = ClassPathResource("static/docs/openapi3.yaml")
