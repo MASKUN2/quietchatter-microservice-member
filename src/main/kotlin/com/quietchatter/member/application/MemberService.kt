@@ -98,6 +98,15 @@ class MemberService(
             MemberNotFoundException("Member not found") 
         }
         member.updateNickname(nickname)
+
+        val eventPayload = """{"memberId": "${member.id}", "nickname": "${member.nickname}"}"""
+        val outboxEvent = OutboxEvent(
+            aggregateType = "Member",
+            aggregateId = member.id.toString(),
+            type = "MemberProfileUpdatedEvent",
+            payload = eventPayload
+        )
+        outboxEventRepository.save(outboxEvent)
     }
 
     @Transactional
