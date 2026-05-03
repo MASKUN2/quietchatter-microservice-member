@@ -24,8 +24,8 @@ data class NaverLoginResponse(
 
 data class SignupRequest(
     @field:NotBlank
-    @field:Size(min = 2, max = 10)
-    @field:Pattern(regexp = "^[가-힣a-zA-Z0-9]+$")
+    @field:Size(min = 1, max = 12)
+    @field:Pattern(regexp = "^[가-힣a-zA-Z0-9\\s_\\-]+$")
     val nickname: String
 )
 
@@ -42,7 +42,7 @@ data class AuthMeResponse(
 
 data class UpdateProfileRequest(
     @field:NotBlank
-    @field:Size(min = 2, max = 10)
-    @field:Pattern(regexp = "^[가-힣a-zA-Z0-9]+$")
+    @field:Size(min = 1, max = 12)
+    @field:Pattern(regexp = "^[가-힣a-zA-Z0-9\\s_\\-]+$")
     val nickname: String
 )
