@@ -1,0 +1,5 @@
+app:
+  cookie:
+    domain: quiet-chatter.com
+    secure: true
+    same-site: Lax
