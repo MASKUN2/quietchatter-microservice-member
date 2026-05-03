@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.cloud.stream.function.StreamBridge
 import org.springframework.data.domain.PageRequest
 import org.springframework.kafka.support.KafkaHeaders
+import java.time.ZoneOffset
 import org.springframework.messaging.support.MessageBuilder
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
@@ -31,7 +32,7 @@ class OutboxRelayService(
                     id = event.id.toString(),
                     source = "/member",
                     type = "com.quietchatter.member.${event.type}",
-                    time = event.createdAt.toString(),
+                    time = event.createdAt.atOffset(ZoneOffset.UTC).toString(),
                     subject = event.aggregateId,
                     data = payloadMap
                 )
