@@ -24,26 +24,30 @@ class OutboxRelayService(
     @Transactional
     fun relayEvents() {
         val events = outboxEventRepository.findByProcessedAtIsNullOrderByCreatedAtAsc(PageRequest.of(0, 100))
-        for (event in events) {
-            val payloadMap: Map<String, Any?> = objectMapper.readValue(event.payload)
-            val integrationEvent = MemberIntegrationEvent(
-                evtId = event.id.toString(),
-                evtAggId = event.aggregateId,
-                evtType = event.type,
-                evtTime = event.createdAt.toString(),
-                payload = payloadMap
-            )
+        events.forEach { event ->
+            runCatching {
+                val payloadMap: Map<String, Any?> = objectMapper.readValue(event.payload)
+                val integrationEvent = MemberIntegrationEvent(
+                    evtId = event.id.toString(),
+                    evtAggId = event.aggregateId,
+                    evtType = event.type,
+                    evtTime = event.createdAt.toString(),
+                    payload = payloadMap
+                )
 
-            val message = MessageBuilder.withPayload(integrationEvent)
-                .setHeader(KafkaHeaders.KEY, event.aggregateId.toByteArray())
-                .build()
+                val message = MessageBuilder.withPayload(integrationEvent)
+                    .setHeader(KafkaHeaders.KEY, event.aggregateId.toByteArray())
+                    .build()
 
-            val success = streamBridge.send("memberEvents-out-0", message)
-            if (success) {
-                event.markProcessed()
-                log.debug("Successfully relayed outbox event: \${event.id}")
-            } else {
-                log.error("Failed to relay outbox event: \${event.id}")
+                if (streamBridge.send("memberEvents-out-0", message)) {
+                    event.markProcessed()
+                    outboxEventRepository.save(event)
+                    log.debug("Successfully relayed outbox event: ${event.id}")
+                } else {
+                    log.error("Failed to relay outbox event: ${event.id}")
+                }
+            }.onFailure { e ->
+                log.error("Error processing outbox event: ${event.id}", e)
             }
         }
     }

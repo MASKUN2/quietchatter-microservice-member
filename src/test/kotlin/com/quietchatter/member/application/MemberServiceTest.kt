@@ -1,5 +1,6 @@
 package com.quietchatter.member.application
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.quietchatter.member.adaptor.out.external.NaverClient
 import com.quietchatter.member.adaptor.out.outbox.OutboxEventRepository
 import com.quietchatter.member.application.out.MemberRepository
@@ -20,13 +21,15 @@ class MemberServiceTest {
     private val naverClient: NaverClient = mock()
     private val authTokenService: AuthTokenService = mock()
     private val randomNickNameSupplier: RandomNickNameSupplier = mock()
+    private val objectMapper: ObjectMapper = ObjectMapper()
     
     private val memberService = MemberService(
         memberRepository,
         outboxEventRepository,
         naverClient,
         authTokenService,
-        randomNickNameSupplier
+        randomNickNameSupplier,
+        objectMapper
     )
 
     @Test

@@ -1,5 +1,6 @@
 package com.quietchatter.member.application
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.quietchatter.member.adaptor.out.external.NaverClient
 import com.quietchatter.member.adaptor.out.outbox.OutboxEvent
 import com.quietchatter.member.adaptor.out.outbox.OutboxEventRepository
@@ -21,7 +22,8 @@ class MemberService(
     private val outboxEventRepository: OutboxEventRepository,
     private val naverClient: NaverClient,
     private val authTokenService: AuthTokenService,
-    private val randomNickNameSupplier: RandomNickNameSupplier
+    private val randomNickNameSupplier: RandomNickNameSupplier,
+    private val objectMapper: ObjectMapper
 ) {
 
     @Transactional
@@ -62,7 +64,9 @@ class MemberService(
         val member = Member.newNaverMember(providerId, nickname)
         val savedMember = memberRepository.save(member)
 
-        val eventPayload = """{"memberId": "${savedMember.id}", "nickname": "${savedMember.nickname}"}"""
+        val eventPayload = objectMapper.writeValueAsString(
+            mapOf("memberId" to savedMember.id, "nickname" to savedMember.nickname)
+        )
         val outboxEvent = OutboxEvent(
             aggregateType = "Member",
             aggregateId = savedMember.id.toString(),
@@ -99,7 +103,9 @@ class MemberService(
         }
         member.updateNickname(nickname)
 
-        val eventPayload = """{"memberId": "${member.id}", "nickname": "${member.nickname}"}"""
+        val eventPayload = objectMapper.writeValueAsString(
+            mapOf("memberId" to member.id, "nickname" to member.nickname)
+        )
         val outboxEvent = OutboxEvent(
             aggregateType = "Member",
             aggregateId = member.id.toString(),
@@ -116,7 +122,9 @@ class MemberService(
         }
         member.deactivate()
 
-        val eventPayload = """{"memberId": "${member.id}"}"""
+        val eventPayload = objectMapper.writeValueAsString(
+            mapOf("memberId" to member.id)
+        )
         val outboxEvent = OutboxEvent(
             aggregateType = "Member",
             aggregateId = member.id.toString(),
