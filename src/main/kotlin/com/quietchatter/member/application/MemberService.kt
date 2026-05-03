@@ -3,8 +3,8 @@ package com.quietchatter.member.application
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.quietchatter.member.adaptor.out.external.NaverClient
 import com.quietchatter.member.adaptor.out.outbox.OutboxEvent
-import com.quietchatter.member.adaptor.out.outbox.OutboxEventRepository
 import com.quietchatter.member.application.out.MemberRepository
+import com.quietchatter.member.application.out.OutboxEventPersistable
 import com.quietchatter.member.domain.Member
 import com.quietchatter.member.domain.OauthProvider
 import com.quietchatter.member.domain.Status
@@ -19,7 +19,7 @@ import java.util.*
 @Service
 class MemberService(
     private val memberRepository: MemberRepository,
-    private val outboxEventRepository: OutboxEventRepository,
+    private val outboxEventPersistable: OutboxEventPersistable,
     private val naverClient: NaverClient,
     private val authTokenService: AuthTokenService,
     private val randomNickNameSupplier: RandomNickNameSupplier,
@@ -73,7 +73,7 @@ class MemberService(
             type = "MemberRegisteredEvent",
             payload = eventPayload
         )
-        outboxEventRepository.save(outboxEvent)
+        outboxEventPersistable.save(outboxEvent)
 
         return savedMember
     }
@@ -112,7 +112,7 @@ class MemberService(
             type = "MemberProfileUpdatedEvent",
             payload = eventPayload
         )
-        outboxEventRepository.save(outboxEvent)
+        outboxEventPersistable.save(outboxEvent)
     }
 
     @Transactional
@@ -131,6 +131,6 @@ class MemberService(
             type = "MemberDeactivatedEvent",
             payload = eventPayload
         )
-        outboxEventRepository.save(outboxEvent)
+        outboxEventPersistable.save(outboxEvent)
     }
 }

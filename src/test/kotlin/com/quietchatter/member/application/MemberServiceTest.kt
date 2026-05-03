@@ -2,8 +2,8 @@ package com.quietchatter.member.application
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.quietchatter.member.adaptor.out.external.NaverClient
-import com.quietchatter.member.adaptor.out.outbox.OutboxEventRepository
 import com.quietchatter.member.application.out.MemberRepository
+import com.quietchatter.member.application.out.OutboxEventPersistable
 import com.quietchatter.member.domain.Member
 import com.quietchatter.member.domain.OauthProvider
 import com.quietchatter.member.infrastructure.AuthTokenService
@@ -17,7 +17,7 @@ import java.util.UUID
 class MemberServiceTest {
 
     private val memberRepository: MemberRepository = mock()
-    private val outboxEventRepository: OutboxEventRepository = mock()
+    private val outboxEventPersistable: OutboxEventPersistable = mock()
     private val naverClient: NaverClient = mock()
     private val authTokenService: AuthTokenService = mock()
     private val randomNickNameSupplier: RandomNickNameSupplier = mock()
@@ -25,7 +25,7 @@ class MemberServiceTest {
     
     private val memberService = MemberService(
         memberRepository,
-        outboxEventRepository,
+        outboxEventPersistable,
         naverClient,
         authTokenService,
         randomNickNameSupplier,
