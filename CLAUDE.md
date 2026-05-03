@@ -18,6 +18,8 @@
 - JWT Access Token과 Refresh Token 발급은 이 서비스가 담당한다.
 - Refresh Token은 Redis에 저장하고 tokenId를 키로 사용한다.
 - 이 서비스 내에서 일반 API 요청의 JWT를 검증하지 마십시오. X-Member-Id 헤더를 신뢰하십시오.
+- Gateway 계약: 토큰이 있으면 X-Member-Id 헤더가 전달되고, 없으면 헤더가 아예 전송되지 않는다. 빈 문자열은 오지 않는다.
+- 인증 필수 엔드포인트에서 X-Member-Id 헤더가 없으면 MissingRequestHeaderException이 발생하며, GlobalExceptionHandler가 이를 401로 처리한다.
 - 레거시의 AuthTokenService.java를 참고하여 쿠키 설정 로직을 구현하십시오.
 
 ### C. OAuth 규칙
