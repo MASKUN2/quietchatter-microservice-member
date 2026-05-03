@@ -40,11 +40,14 @@ QuietChatter의 회원 도메인 서비스. 네이버 OAuth 로그인, JWT 토�
 com.quietchatter.member/
   domain/          Member.kt, OauthProvider.kt, Role.kt, Status.kt
   application/
-    in/            MemberCommandable.kt, AuthMemberService.kt
-    out/           MemberRepository.kt, TokenRepository.kt
+    in/            MemberCommandable.kt
+    out/           MemberRepository.kt, TokenRepository.kt, OutboxEventPersistable.kt
   adaptor/
     in/web/        AuthController.kt, MeController.kt
-    out/           MemberJpaRepository.kt, TokenRedisRepository.kt, NaverOAuthClient.kt
+    out/
+      external/    NaverClient.kt
+      messaging/   MemberIntegrationEvent.kt
+      outbox/      OutboxEvent.kt, OutboxEventRepository.kt, OutboxPersistenceAdapter.kt, OutboxRelayService.kt
 
 com.quietchatter.customer/
   adaptor/in/web/  CustomerMessageController.kt
@@ -102,8 +105,17 @@ RFC 7807 (Problem Details for HTTP APIs) 표준을 준수하며, @RestController
 
 ## 이벤트
 
-- 발행: MemberRegisteredEvent, MemberDeactivatedEvent, MemberProfileUpdatedEvent (Kafka 토픽: member)
-- 전송 패턴: Transactional Outbox
+이벤트 포맷: CloudEvents 1.0 (specversion, id, source, type, time, subject, datacontenttype, data). 시각 필드는 RFC 3339(UTC) 형식.
+
+발행 이벤트 (Kafka 토픽: member):
+
+| type 필드 | 트리거 | data 필드 |
+|---|---|---|
+| com.quietchatter.member.MemberRegisteredEvent | 회원가입 | memberId, nickname |
+| com.quietchatter.member.MemberDeactivatedEvent | 회원 탈퇴 | memberId |
+| com.quietchatter.member.MemberProfileUpdatedEvent | 닉네임 수정 | memberId, nickname |
+
+전송 패턴: Transactional Outbox. OutboxRelayService가 1초 간격으로 미처리 이벤트를 릴레이하고, 처리 완료된 이벤트는 7일 후 자동 삭제(매시간 정각 cleanup job).
 
 ## 닉네임 검증 규칙
 

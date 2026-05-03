@@ -30,7 +30,10 @@
 ### D. 메시징 규칙
 
 - 모든 이벤트 발행은 Transactional Outbox 패턴을 따른다.
-- 이벤트 직렬화: flattened JSON. 메타데이터 필드에는 evt_ 접두어를 사용하십시오.
+- 이벤트 포맷: CloudEvents 1.0. MemberIntegrationEvent 클래스를 사용하며 필드는 specversion, id, source, type, time, subject, datacontenttype, data를 포함한다.
+- type 필드 명명 규칙: com.quietchatter.member.{EventName} (예: com.quietchatter.member.MemberDeactivatedEvent).
+- time 필드: LocalDateTime.atOffset(ZoneOffset.UTC).toString()으로 RFC 3339 형식 직렬화.
+- MemberService는 OutboxEventPersistable 포트를 통해 이벤트를 저장한다. OutboxEventRepository를 직접 주입하지 마십시오.
 
 ### E. 데이터베이스 변경
 
