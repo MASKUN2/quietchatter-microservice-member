@@ -28,11 +28,12 @@ class OutboxRelayService(
             runCatching {
                 val payloadMap: Map<String, Any?> = objectMapper.readValue(event.payload)
                 val integrationEvent = MemberIntegrationEvent(
-                    evtId = event.id.toString(),
-                    evtAggId = event.aggregateId,
-                    evtType = event.type,
-                    evtTime = event.createdAt.toString(),
-                    payload = payloadMap
+                    id = event.id.toString(),
+                    source = "/member",
+                    type = "com.quietchatter.member.${event.type}",
+                    time = event.createdAt.toString(),
+                    subject = event.aggregateId,
+                    data = payloadMap
                 )
 
                 val message = MessageBuilder.withPayload(integrationEvent)

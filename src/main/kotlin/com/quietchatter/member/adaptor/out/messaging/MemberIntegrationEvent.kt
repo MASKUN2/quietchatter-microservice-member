@@ -1,12 +1,14 @@
 package com.quietchatter.member.adaptor.out.messaging
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class MemberIntegrationEvent(
-    @JsonProperty("evt_id") val evtId: String,
-    @JsonProperty("evt_agg_id") val evtAggId: String,
-    @JsonProperty("evt_type") val evtType: String,
-    @JsonProperty("evt_time") val evtTime: String,
-    @JsonAnyGetter val payload: Map<String, Any?>
+    @JsonProperty("specversion") val specVersion: String = "1.0",
+    @JsonProperty("id") val id: String,
+    @JsonProperty("source") val source: String,
+    @JsonProperty("type") val type: String,
+    @JsonProperty("time") val time: String,
+    @JsonProperty("subject") val subject: String,
+    @JsonProperty("datacontenttype") val dataContentType: String = "application/json",
+    @JsonProperty("data") val data: Map<String, Any?>
 )
