@@ -66,6 +66,11 @@ class AuthTokenService(
         addCookie(response, refreshTokenCookieName, refreshToken, refreshTokenLifetime)
     }
 
+    fun putRotatedTokensInCookies(response: HttpServletResponse, result: TokenRotationResult) {
+        addCookie(response, accessTokenCookieName, result.accessToken, accessTokenLifetime)
+        addCookie(response, refreshTokenCookieName, result.refreshToken, refreshTokenLifetime)
+    }
+
     fun expireTokenCookies(response: HttpServletResponse) {
         addCookie(response, accessTokenCookieName, "", Duration.ZERO)
         addCookie(response, refreshTokenCookieName, "", Duration.ZERO)

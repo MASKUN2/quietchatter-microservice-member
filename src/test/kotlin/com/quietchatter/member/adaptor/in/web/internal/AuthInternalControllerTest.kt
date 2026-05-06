@@ -1,9 +1,10 @@
 package com.quietchatter.member.adaptor.`in`.web.internal
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.quietchatter.member.dto.TokenRotationResult
 import com.quietchatter.member.infrastructure.AuthTokenService
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
@@ -12,6 +13,7 @@ import org.springframework.test.context.TestPropertySource
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -22,14 +24,11 @@ class AuthInternalControllerTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
 
-    @Autowired
-    private lateinit var objectMapper: ObjectMapper
-
     @MockitoBean
     private lateinit var authTokenService: AuthTokenService
 
     @Test
-    fun `refresh returns 200 with new tokens when refresh token is valid`() {
+    fun `refresh sets token cookies and returns memberId when refresh token is valid`() {
         val result = TokenRotationResult(
             accessToken = "new-access-token",
             refreshToken = "new-refresh-token",
@@ -44,9 +43,11 @@ class AuthInternalControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
         )
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.accessToken").value("new-access-token"))
-            .andExpect(jsonPath("$.refreshToken").value("new-refresh-token"))
             .andExpect(jsonPath("$.memberId").value("member-uuid"))
+            .andExpect(jsonPath("$.accessToken").doesNotExist())
+            .andExpect(jsonPath("$.refreshToken").doesNotExist())
+
+        verify(authTokenService).putRotatedTokensInCookies(any(), any())
     }
 
     @Test
