@@ -81,12 +81,13 @@ com.quietchatter.customer/
 |---|---|---|
 | POST | /api/support/messages | 고객 문의 접수 |
 
-### 내부용 API (/internal/api, 외부 차단)
+### 내부용 API (/internal, 외부 차단)
 
 X-Internal-Secret 헤더 필수. 헤더 값이 INTERNAL_SECRET env var와 불일치 시 403 반환.
 
 | 메서드 | 경로 | 설명 |
 |---|---|---|
+| POST | /internal/auth/refresh | Refresh Token 검증 및 토큰 rotation. 신규 ACCESS_TOKEN·REFRESH_TOKEN을 Set-Cookie 헤더로 발급하고 응답 바디에 memberId 반환. 세션 만료 시 401. |
 | GET | /internal/api/members/{memberId} | 회원 공개 정보(닉네임 등) 조회 |
 
 ## 도메인 모델
