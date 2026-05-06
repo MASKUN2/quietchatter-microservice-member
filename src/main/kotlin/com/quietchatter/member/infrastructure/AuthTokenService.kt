@@ -1,5 +1,6 @@
 package com.quietchatter.member.infrastructure
 
+import com.quietchatter.member.dto.TokenRotationResult
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import jakarta.servlet.http.HttpServletResponse
@@ -19,7 +20,7 @@ class AuthTokenService(
     private val redisTemplate: StringRedisTemplate,
     private val cookieProperties: AppCookieProperties
 ) {
-    private val secretKey: SecretKey = Keys.hmacShaKeyFor(rawKey.toByteArray())
+    private val secretKey: SecretKey = Keys.hmacShaKeyFor(rawKey.toByteArray(Charsets.UTF_8))
     private val jwtParser = Jwts.parser().verifyWith(secretKey).build()
 
     private val accessTokenLifetime = Duration.ofMinutes(30)
@@ -117,6 +118,20 @@ class AuthTokenService(
             if (claims["purpose"] == "reactivate") {
                 UUID.fromString(claims.subject)
             } else null
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun rotateRefreshToken(refreshTokenValue: String): TokenRotationResult? {
+        return try {
+            val claims = jwtParser.parseSignedClaims(refreshTokenValue).payload
+            val tokenId = claims.id ?: return null
+            val memberIdStr = redisTemplate.opsForValue().getAndDelete("refresh_token:$tokenId") ?: return null
+            val memberId = UUID.fromString(memberIdStr)
+            val newAccessToken = createNewAccessToken(memberId)
+            val newRefreshToken = createAndSaveRefreshToken(memberId)
+            TokenRotationResult(newAccessToken, newRefreshToken, memberIdStr)
         } catch (e: Exception) {
             null
         }
