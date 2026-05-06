@@ -17,14 +17,16 @@ import javax.crypto.SecretKey
 @Service
 class AuthTokenService(
     @Value("\${jwt.secret-key}") rawKey: String,
+    @Value("\${app.token.access-lifetime-minutes:30}") accessLifetimeMinutes: Long,
+    @Value("\${app.token.refresh-lifetime-days:30}") refreshLifetimeDays: Long,
     private val redisTemplate: StringRedisTemplate,
     private val cookieProperties: AppCookieProperties
 ) {
     private val secretKey: SecretKey = Keys.hmacShaKeyFor(rawKey.toByteArray(Charsets.UTF_8))
     private val jwtParser = Jwts.parser().verifyWith(secretKey).build()
 
-    private val accessTokenLifetime = Duration.ofMinutes(30)
-    private val refreshTokenLifetime = Duration.ofDays(30)
+    private val accessTokenLifetime: Duration = Duration.ofMinutes(accessLifetimeMinutes)
+    private val refreshTokenLifetime: Duration = Duration.ofDays(refreshLifetimeDays)
     private val registerTokenLifetime = Duration.ofHours(2)
     private val reactivationTokenLifetime = Duration.ofHours(2)
 

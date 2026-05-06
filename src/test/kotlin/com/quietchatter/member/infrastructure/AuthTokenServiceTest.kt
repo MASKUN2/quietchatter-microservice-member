@@ -24,7 +24,7 @@ class AuthTokenServiceTest {
     @BeforeEach
     fun setUp() {
         whenever(redisTemplate.opsForValue()).thenReturn(valueOperations)
-        authTokenService = AuthTokenService(secretKey, redisTemplate, cookieProperties)
+        authTokenService = AuthTokenService(secretKey, 30L, 30L, redisTemplate, cookieProperties)
     }
 
     @Test
